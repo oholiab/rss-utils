@@ -10,6 +10,11 @@
 (def user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
 (def default-headers {"User-Agent" user-agent})
 
+(defn -get-host
+  "Get the host portion of a URL"
+  [url]
+  (.getHost (new java.net.URL url)))
+
 ; FIXME: make headers an optional arg
 (defn -get-body
   "Plain old http get with a friendly user agent"
@@ -19,7 +24,7 @@
 (defn -tmpfile
   "Get tempfile name"
   [url]
-  (str "/tmp/tmp-" (first (str/split url #"/")) ".xml"))
+  (str "/tmp/tmp-" (-get-host url) ".xml"))
 
 (defn -fetch-local
   "Fetch `url` contents to `tmpfile`"
