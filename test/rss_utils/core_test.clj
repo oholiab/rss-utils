@@ -2,6 +2,9 @@
   (:require [clojure.test :refer :all]
             [rss-utils.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest test-original-tmpfile-out
+  (testing "tmpfile is correct"
+    (is (= 
+          "/tmp/tmp-somesite.com.xml"
+          (original-tmpfile "https://somesite.com/somestuff")
+          ))))

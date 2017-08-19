@@ -21,7 +21,7 @@
   [url]
   (:body (http/get url {:headers default-headers})))
 
-(defn -tmpfile
+(defn original-tmpfile
   "Get tempfile name"
   [url]
   (str "/tmp/tmp-" (-get-host url) ".xml"))
@@ -29,7 +29,7 @@
 (defn -fetch-local
   "Fetch `url` contents to `tmpfile`"
   [url]
-  (let [tmpfile (-tmpfile url)]
+  (let [tmpfile (original-tmpfile url)]
     (spit tmpfile (-get-body url))
     (str "file://" tmpfile)))
 
