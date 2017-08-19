@@ -32,7 +32,7 @@
 (defn parse-feed
   "Takes `url` of a feed and returns it fetched and parsed as an xml object"
   [url]
-  (xml/parse (io/input-stream (-fetch-local url "/tmp/parse-feed"))))
+  (xml/parse (io/input-stream (-fetch-local url))))
 
 (defn zip-at-first-item
   "Takes an rss `feed` and returns a zip located at the first item"
