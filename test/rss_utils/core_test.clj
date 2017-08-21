@@ -4,10 +4,9 @@
 
 (deftest test-original-tmpfile
   (testing "tmpfile name is correct"
-    (is (= 
+    (is (=
           "/tmp/tmp-somesite.com.xml"
-          (original-tmpfile "https://somesite.com/somestuff")
-          ))))
+          (original-tmpfile "https://somesite.com/somestuff")))))
 
 (deftest test--fetch-or-local
   (testing "-fetch-or-local on a local file just returns its name"

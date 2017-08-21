@@ -33,14 +33,18 @@
     (spit tmpfile (-get-body url))
     (str "file://" tmpfile)))
 
+(defn -fetch-or-local
+  "If the url is local (`file:///...`) then return the url, if it is remote then fetch it and return the local path)"
+  [url]
+  (if (re-matches #"^file:///.+$" url)
+    url
+    (-fetch-local url)))
+
 ; FIXME: hardcoded tmpfile is awful
 (defn parse-feed
   "Takes `url` of a feed and returns it fetched and parsed as an xml object"
   [url]
-  (xml/parse (io/input-stream 
-               (if (re-matches #"^file:///.+$" url)
-                 url
-                 (-fetch-local url)))))
+  (xml/parse (io/input-stream (-fetch-or-local url))))
 
 (defn zip-at-first-item
   "Takes an rss `feed` and returns a zip located at the first item"
