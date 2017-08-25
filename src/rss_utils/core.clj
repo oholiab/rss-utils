@@ -67,3 +67,20 @@
     (if (nil? (zip/right loc))
       ret
       (recur (zip/right loc) (conj ret (func loc))))))
+
+(defn get-fields
+  [item]
+  (map :tag
+       (:content (zip/node item))))
+
+(defn get-fields-from-first-item
+  [feed]
+  (get-fields (zip-at-first-item feed)))
+
+(defn get-value-from-item
+  [field item]
+  (first (:content (zip/node (dzx/xml1-> item field)))))
+
+(defn get-values-from-item
+  [fields item]
+  (map #(get-value-from-item % item) fields))
