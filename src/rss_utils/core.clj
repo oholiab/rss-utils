@@ -51,6 +51,10 @@
   [feed]
   (dzx/xml1-> (zip/xml-zip feed) :channel :item))
 
+(defn is-item?
+  [loc]
+  (= (first (first loc)) [:tag :item]))
+
 (defn apply-to-items
   "Takes body of an RSS feed `feed` and applies `func` to each item where func must return a zip location"
   [feed func]
