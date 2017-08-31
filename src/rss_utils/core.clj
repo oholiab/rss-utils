@@ -55,22 +55,34 @@
   [loc]
   (= (first (first loc)) [:tag :item]))
 
+(defn apply-if-item
+  [func loc]
+  (if (is-item? loc)
+    (func loc)
+    loc))
+
 (defn apply-to-items
   "Takes body of an RSS feed `feed` and applies `func` to each item where func must return a zip location"
   [feed func]
   (loop [loc (func (zip-at-first-item feed))]
-    (if (nil? (zip/right loc))
-      (zip/root loc)
-      (recur (func (zip/right loc))))))
+    (let [next-loc (zip/right loc)]
+      (if (nil? next-loc)
+        (zip/root loc)
+        (recur (apply-if-item func next-loc))))))
 
 (defn for-each-item
   "Takes body of an RSS feed `feed` and returns a list of the results of applying `func` to each item"
   [feed func]
   (loop [loc (zip-at-first-item feed)
          ret [(func loc)]]
-    (if (nil? (zip/right loc))
-      ret
-      (recur (zip/right loc) (conj ret (func loc))))))
+    (let [next-loc (zip/right loc)]
+      (if (nil? next-loc)
+        ret
+        (recur
+          next-loc
+          (if (is-item? loc)
+            (conj ret (func loc))
+            ret))))))
 
 (defn get-fields
   [item]
