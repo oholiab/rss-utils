@@ -6,6 +6,37 @@
             [clj-http.client      :as http]
             [clojure.string :as str]))
 
+;; ----- BEGIN TERRIBLE HACK ----- ;;
+; Stops data.xml 0.2.0-alpha3 from throwing an exception when xmlns prefix is
+; correctly defined - this is a bug which has a fix out, but not in a release
+; version
+
+(in-ns 'clojure.data.xml.pu-map)
+(defn assoc! [{:as put :keys [p->u u->ps]} prefix uri]
+  ; Monkey patching the following bit out
+  #_(when (or (core/get #{"xml" "xmlns"} prefix)
+            (core/get #{name/xml-uri name/xmlns-uri} uri))
+    (throw (ex-info "Mapping for xml: and xmlns: prefixes are fixed by the standard"
+                    {:attempted-mapping {:prefix prefix
+                                         :uri uri}})))
+  (let [prev-uri (core/get p->u prefix)]
+    (core/assoc! put
+                 :p->u (if (str/blank? uri)
+                         (core/dissoc! p->u prefix)
+                         (core/assoc! p->u prefix uri))
+                 :u->ps (if (str/blank? uri)
+                          (dissoc-uri! u->ps prev-uri prefix)
+                          (cond
+                            (= uri prev-uri) u->ps
+                            (not prev-uri) (assoc-uri! u->ps uri prefix)
+                            :else (-> u->ps
+                                      (dissoc-uri! prev-uri prefix)
+                                      (assoc-uri! uri prefix)))))))
+
+;; ----- END TERRIBLE HACK ----- ;;
+
+(in-ns 'rss-utils.core)
+
 ; FIXME: somehow don't hardcode this?
 (def user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
 (def default-headers {"User-Agent" user-agent})
@@ -19,7 +50,10 @@
 (defn -get-body
   "Plain old http get with a friendly user agent"
   [url]
-  (:body (http/get url {:headers default-headers})))
+  (try
+    (:body (http/get url {:headers default-headers}))
+    (catch java.net.ConnectException e (do (println (str "Caught exception for URL " url ": " (.getMessage e)))
+                                           (throw e)))))
 
 (defn original-tmpfile
   "Get tempfile name"
