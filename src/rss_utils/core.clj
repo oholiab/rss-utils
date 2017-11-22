@@ -37,8 +37,11 @@
 
 (in-ns 'rss-utils.core)
 (def xmlns-content-url "http://purl.org/rss/1.0/modules/content/")
+(def xmlns-atomfeed-url "http://www.w3.org/2005/Atom")
 (def xmlns-content-hash {:xmlns/content xmlns-content-url})
+(def xmlns-atomfeed-hash {:xmlns/atomfeed xmlns-atomfeed-url})
 (xml/alias-uri 'content xmlns-content-url)
+(xml/alias-uri 'atomfeed xmlns-atomfeed-url)
 
 ; FIXME: somehow don't hardcode this?
 (def user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
@@ -82,6 +85,14 @@
   "Takes `url` of a feed and returns it fetched and parsed as an xml object"
   [url]
   (xml/parse (io/input-stream (-fetch-or-local url))))
+
+(defn is-atom?
+  [feed]
+  (= (:tag feed) ::atomfeed/feed))
+
+(defn is-rss?
+  [feed]
+  (= (:tag feed) :rss))
 
 (defn zip-at-first-item
   "Takes an rss `feed` and returns a zip located at the first item"
