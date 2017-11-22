@@ -36,6 +36,9 @@
 ;; ----- END TERRIBLE HACK ----- ;;
 
 (in-ns 'rss-utils.core)
+(def xmlns-content-url "http://purl.org/rss/1.0/modules/content/")
+(def xmlns-content-hash {:xmlns/content xmlns-content-url})
+(xml/alias-uri 'content xmlns-content-url)
 
 ; FIXME: somehow don't hardcode this?
 (def user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
@@ -134,3 +137,11 @@
 (defn get-values-from-item
   [fields item]
   (map #(get-value-from-item % item) fields))
+
+(defn create-empty-feed
+  []
+  (xml/element :rss (merge {:version "2.0"} xmlns-content-hash)
+               (xml/element :channel {}
+                            (xml/element :item {}))))
+
+(xml/emit-str (create-empty-feed))
