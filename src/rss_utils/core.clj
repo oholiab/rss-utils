@@ -97,11 +97,16 @@
 (defn zip-at-first-item
   "Takes an rss `feed` and returns a zip located at the first item"
   [feed]
-  (dzx/xml1-> (zip/xml-zip feed) :channel :item))
+  (cond
+    (is-rss? feed) (dzx/xml1-> (zip/xml-zip feed) :channel :item)
+    (is-atom? feed) (dzx/xml1-> (zip/xml-zip feed) ::atomfeed/feed ::atomfeed/entry)
+    :else (throw (RuntimeException. (str "Feed is not atom or rss. First tag is: " (:tag feed))))))
 
 (defn is-item?
   [loc]
-  (= (first (first loc)) [:tag :item]))
+  (or
+   (= (first (first loc)) [:tag :item])
+   (= (first (first loc)) [:tag ::atomfeed/entry])))
 
 (defn apply-if-item
   [func loc]
