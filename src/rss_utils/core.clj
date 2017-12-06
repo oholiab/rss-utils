@@ -86,6 +86,10 @@
   [url]
   (xml/parse (io/input-stream (-fetch-or-local url))))
 
+(defn fields-atom?
+  [fields]
+  (some #{::atomfeed/title ::atomfeed/link ::atomfeed/content ::atomfeed/author} fields))
+
 (defn is-atom?
   [feed]
   (= (:tag feed) ::atomfeed/feed))
@@ -102,11 +106,19 @@
     (is-atom? feed) (dzx/xml1-> (zip/xml-zip feed) ::atomfeed/feed ::atomfeed/entry)
     :else (throw (RuntimeException. (str "Feed is not atom or rss. First tag is: " (:tag feed))))))
 
+(defn is-atom-entry?
+  [loc]
+  (= (first (first loc)) [:tag ::atomfeed/entry]))
+
+(defn is-rss-item?
+  [loc]
+  (= (first (first loc)) [:tag :item]))
+
 (defn is-item?
   [loc]
   (or
-   (= (first (first loc)) [:tag :item])
-   (= (first (first loc)) [:tag ::atomfeed/entry])))
+   (is-rss-item? loc)
+   (is-atom-entry? loc)))
 
 (defn apply-if-item
   [func loc]
