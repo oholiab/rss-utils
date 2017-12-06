@@ -1,4 +1,4 @@
-(defproject rss-utils "0.0.10"
+(defproject rss-utils "0.0.11"
   :description "Simple utilities for parsing rss feeds"
   :url "https://github.com/oholiab/rss-utils"
   :license {:name "3-Clause BSD License"

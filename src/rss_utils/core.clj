@@ -88,7 +88,7 @@
 
 (defn fields-atom?
   [fields]
-  (some #{::atomfeed/title ::atomfeed/link ::atomfeed/content ::atomfeed/author} fields))
+  (not (nil? (some #{::atomfeed/title ::atomfeed/link ::atomfeed/content ::atomfeed/author} fields))))
 
 (defn is-atom?
   [feed]
