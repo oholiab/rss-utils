@@ -36,12 +36,20 @@
 ;; ----- END TERRIBLE HACK ----- ;;
 
 (in-ns 'rss-utils.core)
-(def xmlns-content-url "http://purl.org/rss/1.0/modules/content/")
-(def xmlns-atomfeed-url "http://www.w3.org/2005/Atom")
-(def xmlns-content-hash {:xmlns/content xmlns-content-url})
-(def xmlns-atomfeed-hash {:xmlns/atomfeed xmlns-atomfeed-url})
-(xml/alias-uri 'content xmlns-content-url)
-(xml/alias-uri 'atomfeed xmlns-atomfeed-url)
+(defmacro define-content-xmlns
+  []
+  (def xmlns-content-url "http://purl.org/rss/1.0/modules/content/")
+  (def xmlns-content-hash {:xmlns/content xmlns-content-url})
+  (xml/alias-uri 'content xmlns-content-url))
+
+(defmacro define-atom-xmlns
+  []
+  (def xmlns-atomfeed-url "http://www.w3.org/2005/Atom")
+  (def xmlns-atomfeed-hash {:xmlns/atomfeed xmlns-atomfeed-url})
+  (xml/alias-uri 'atomfeed xmlns-atomfeed-url))
+
+(define-content-xmlns)
+(define-atom-xmlns)
 
 ; FIXME: somehow don't hardcode this?
 (def user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
@@ -171,5 +179,3 @@
   (xml/element :rss (merge {:version "2.0"} xmlns-content-hash)
                (xml/element :channel {}
                             (xml/element :item {}))))
-
-(xml/emit-str (create-empty-feed))
