@@ -129,6 +129,7 @@
    (is-atom-entry? loc)))
 
 (defn apply-if-item
+  "If `loc` is an item, `func` will be applied to that loc and returned, otherwise `loc` is returned"
   [func loc]
   (if (is-item? loc)
     (func loc)
@@ -158,23 +159,28 @@
             ret))))))
 
 (defn get-fields
+  "Takes a feed item `item` and extracts the top level fields from it"
   [item]
-  (map :tag
-       (:content (zip/node item))))
+  (remove nil? (map :tag
+                    (:content (zip/node item)))))
 
 (defn get-fields-from-first-item
+  "Takes a feed `feed`, finds the first item and extracts the top level fields from it"
   [feed]
   (get-fields (zip-at-first-item feed)))
 
 (defn get-value-from-item
+  "Extracts the content from `field` inside `item`"
   [field item]
   (first (:content (zip/node (dzx/xml1-> item field)))))
 
 (defn get-values-from-item
+  "Extracts all of the values from `item` that exist under the list of `fields`"
   [fields item]
   (map #(get-value-from-item % item) fields))
 
 (defn create-empty-feed
+  "Generates an empty rss feed"
   []
   (xml/element :rss (merge {:version "2.0"} xmlns-content-hash)
                (xml/element :channel {}

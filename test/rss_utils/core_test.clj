@@ -62,6 +62,13 @@
 (def example-rss
   (xml/parse (string->stream example-rss-str)))
 
+; FIXME: These two should be constructed data, otherwise they're being used to test the funcitons that produced them.
+(def atom-first-item
+  (zip-at-first-item example-atom))
+
+(def rss-first-item
+  (zip-at-first-item example-rss))
+
 (deftest test-original-tmpfile
   (testing "tmpfile name is correct"
     (is (=
@@ -93,3 +100,38 @@
   (testing "returns true for an rss feed and false for others"
     (is (= true (is-rss? example-rss)))
     (is (= false (is-rss? example-atom)))))
+
+(deftest test-is-item?
+  (testing "returns true when an item is supplied"
+    (is (= true (is-item? atom-first-item)))
+    (is (= true (is-item? rss-first-item)))))
+
+(deftest test-is-atom-entry?
+  (testing "returns true when an atom entry is supplied"
+    (is (= true (is-atom-entry? atom-first-item)))
+    (is (= false (is-atom-entry? rss-first-item)))))
+
+(deftest test-is-rss-item?
+  (testing "returns true when an atom entry is supplied"
+    (is (= false (is-rss-item? atom-first-item)))
+    (is (= true (is-rss-item? rss-first-item)))))
+
+(deftest test-get-fields
+  (testing "returns correct fields for feeds"
+    (let [atom-fields '(::atomfeed/title
+                        ::atomfeed/link
+                        ::atomfeed/id
+                        ::atomfeed/updated
+                        ::atomfeed/summary)
+          rss-fields  '(:title
+                        :link
+                        :description)]
+      (is (= atom-fields (get-fields atom-first-item)))
+      (is (= rss-fields (get-fields rss-first-item))))))
+
+(deftest test-get-value-from-item
+  (testing "returns correct values for a given field"
+    (let [atom-title "Atom-Powered Robots Run Amok"
+          rss-title "RSS Tutorial"]
+      (is (= atom-title (get-value-from-item ::atomfeed/title atom-first-item)))
+      (is (= rss-title (get-value-from-item :title rss-first-item))))))
