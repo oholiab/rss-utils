@@ -37,12 +37,14 @@
 
 (in-ns 'rss-utils.core)
 (defmacro define-content-xmlns
+  "Define `content` xmlns in current scope"
   []
   (def xmlns-content-url "http://purl.org/rss/1.0/modules/content/")
   (def xmlns-content-hash {:xmlns/content xmlns-content-url})
   (xml/alias-uri 'content xmlns-content-url))
 
 (defmacro define-atom-xmlns
+  "Define `atomfeed` xmlns in current scope. Renamed from `atom` so as to not cause confusion with the clojure mutable"
   []
   (def xmlns-atomfeed-url "http://www.w3.org/2005/Atom")
   (def xmlns-atomfeed-hash {:xmlns/atomfeed xmlns-atomfeed-url})
@@ -95,14 +97,17 @@
   (xml/parse (io/input-stream (-fetch-or-local url))))
 
 (defn fields-atom?
+  "Returns true if the list `fields` contains any atom fields, else returns false. FIXME: this should probably just check for a single instance of the namespace"
   [fields]
   (not (nil? (some #{::atomfeed/title ::atomfeed/link ::atomfeed/content ::atomfeed/author} fields))))
 
 (defn is-atom?
+  "Returns true if `feed` is an atom feed, else returns false"
   [feed]
   (= (:tag feed) ::atomfeed/feed))
 
 (defn is-rss?
+  "Returns true if `feed` is an rss feed, else returns false"
   [feed]
   (= (:tag feed) :rss))
 
@@ -115,14 +120,17 @@
     :else (throw (RuntimeException. (str "Feed is not atom or rss. First tag is: " (:tag feed))))))
 
 (defn is-atom-entry?
+  "Returns true if `loc` is an atom entry, else returns false"
   [loc]
   (= (first (first loc)) [:tag ::atomfeed/entry]))
 
 (defn is-rss-item?
+  "Returns true if `loc` is an rss item, else returns false"
   [loc]
   (= (first (first loc)) [:tag :item]))
 
 (defn is-item?
+  "Retrurns true if `loc` is an rss-item-like entity (atom entry or rss item), else returns false"
   [loc]
   (or
    (is-rss-item? loc)
