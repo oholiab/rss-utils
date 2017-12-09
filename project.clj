@@ -6,4 +6,6 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-http "3.5.0"]
                  [org.clojure/data.zip "0.1.2"]
-                 [org.clojure/data.xml "0.2.0-alpha3"]])
+                 [org.clojure/data.xml "0.2.0-alpha3"]]
+  :repositories [["releases" {:url "https://clojars.org/repo"
+                              :sign-releases false}]])
