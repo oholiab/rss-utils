@@ -3,7 +3,9 @@
             [rss-utils.core :refer :all]
             [clojure.string :as str]
             [clojure.data.xml :as xml]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.data.zip.xml :as dzx]
+            [clojure.zip :as zip]))
 
 (define-content-xmlns)
 (define-atom-xmlns)
@@ -129,9 +131,44 @@
       (is (= atom-fields (get-fields atom-first-item)))
       (is (= rss-fields (get-fields rss-first-item))))))
 
+(deftest test-for-each-item
+  ; FIXME: Crazy functional programming testing managing to use a partial wtf
+  (testing "maps a function to items in a feed"
+    (let [fn (fn
+               [field item]
+               (-> (dzx/xml1-> item field)
+                   zip/node
+                   :content
+                   first))]
+      (is (= (for-each-item example-rss (partial fn :title)) ["RSS Tutorial" "XML Tutorial"]))
+      (is (= (for-each-item example-atom (partial fn ::atomfeed/title)) ["Atom-Powered Robots Run Amok"]))
+      )))
+
+(deftest test-get-fields-from-first-item
+  (testing "gets list of feeds from the first item in the feed"
+    (is (= (get-fields-from-first-item example-atom)
+           '(::atomfeed/title
+             ::atomfeed/link
+             ::atomfeed/id
+             ::atomfeed/updated
+             ::atomfeed/summary)))
+    (is (= (get-fields-from-first-item example-rss)
+           '(:title :link :description)))))
+
 (deftest test-get-value-from-item
   (testing "returns correct values for a given field"
     (let [atom-title "Atom-Powered Robots Run Amok"
           rss-title "RSS Tutorial"]
       (is (= atom-title (get-value-from-item ::atomfeed/title atom-first-item)))
       (is (= rss-title (get-value-from-item :title rss-first-item))))))
+
+(deftest test-get-values-from-item
+  (testing "returns correct values for a given list of fields"
+    (is (= (get-values-from-item [::atomfeed/title ::atomfeed/link] atom-first-item) ["Atom-Powered Robots Run Amok" nil]))
+    (is (= (get-values-from-item [:title :link] rss-first-item) ["RSS Tutorial" "https://www.w3schools.com/xml/xml_rss.asp"]))
+    ))
+; Unnecessary shite
+
+(deftest test-create-empty-feed
+  (testing "creates an empty feed"
+    (is (= (xml/emit-str (create-empty-feed)) "<?xml version=\"1.0\" encoding=\"UTF-8\"?><rss xmlns:content=\"http://purl.org/rss/1.0/modules/content/\" version=\"2.0\"><channel><item/></channel></rss>"))))

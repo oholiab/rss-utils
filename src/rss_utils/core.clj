@@ -156,7 +156,7 @@
   "Takes body of an RSS feed `feed` and returns a list of the results of applying `func` to each item"
   [feed func]
   (loop [loc (zip-at-first-item feed)
-         ret [(func loc)]]
+         ret []]
     (let [next-loc (zip/right loc)]
       (if (nil? next-loc)
         ret
