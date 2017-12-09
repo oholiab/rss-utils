@@ -108,6 +108,14 @@
     (is (= true (is-item? atom-first-item)))
     (is (= true (is-item? rss-first-item)))))
 
+(deftest test-apply-if-item
+  (testing "applies fn if the loc is an item, but returns the loc if not"
+    (let [fn #(first (get-fields %))]
+      (is (= (apply-if-item fn atom-first-item) ::atomfeed/title))
+      (is (= (apply-if-item fn rss-first-item) :title))
+      (is (= (apply-if-item fn example-atom) example-atom))
+      (is (= (apply-if-item fn example-rss) example-rss)))))
+
 (deftest test-is-atom-entry?
   (testing "returns true when an atom entry is supplied"
     (is (= true (is-atom-entry? atom-first-item)))
