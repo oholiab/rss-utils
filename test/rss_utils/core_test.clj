@@ -71,6 +71,12 @@
 (def rss-first-item
   (zip-at-first-item example-rss))
 
+(deftest test--fetch-or-local
+  (testing "knows the difference between a remote or local file"
+    (binding [-fetch-local #(:not-local)]
+      (is (= (-fetch-local "file:///blah") "file:///blah"))
+      (is (= (-fetch-local "https:///grimmwa.re") :not-local)))))
+
 (deftest test-original-tmpfile
   (testing "tmpfile name is correct"
     (is (=
